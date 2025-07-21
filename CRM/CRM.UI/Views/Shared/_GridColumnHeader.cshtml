@@ -1,0 +1,33 @@
+﻿<th scope="col">
+    @if (ViewBag.CurrentSortBy == ViewBag.ColumnName && ViewBag.CurrentSortOrder == SortOrderOptions.asc)
+    {
+        <a asp-controller="Person"
+           asp-action="Index"
+           asp-route-searchBy="@ViewBag.CurrentSearchBy"
+           asp-route-searchString="@ViewBag.CurrentSearchString"
+           asp-route-sortBy="@ViewBag.ColumnName"
+           asp-route-sortOrder="@SortOrderOptions.desc">@ViewBag.DisplayName</a>
+        
+    }
+    else if (ViewBag.CurrentSortBy == ViewBag.ColumnName && ViewBag.CurrentSortOrder == SortOrderOptions.desc)
+    {
+        <a asp-controller="Person"
+           asp-action="Index"
+           asp-route-searchBy="@ViewBag.CurrentSearchBy"
+           asp-route-searchString="@ViewBag.CurrentSearchString"
+           asp-route-sortBy="@ViewBag.ColumnName"
+           asp-route-sortOrder="@SortOrderOptions.asc">@ViewBag.DisplayName</a>
+        
+    }
+
+    else
+    {
+        <a asp-controller="Person"
+           asp-action="Index"
+           asp-route-searchBy="@ViewBag.CurrentSearchBy"
+           asp-route-searchString="@ViewBag.CurrentSearchString"
+           asp-route-sortBy="@ViewBag.ColumnName"
+           asp-route-sortOrder="@SortOrderOptions.desc">@ViewBag.DisplayName</a>
+    }
+
+</th>
