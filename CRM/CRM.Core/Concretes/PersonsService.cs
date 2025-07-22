@@ -6,6 +6,7 @@ using CRM.Models.DTO;
 using CRM.Models.Enums;
 using System.Net.Http.Headers;
 using Microsoft.EntityFrameworkCore;
+using CsvHelper;
 
 namespace CRM.Core.Concretes;
 public class PersonsService: IPersonsService
@@ -158,6 +159,22 @@ public class PersonsService: IPersonsService
         await _database.SaveChangesAsync();
 
         return true;
+    }
+
+    public async Task<MemoryStream> GetPersonsCSV()
+    {
+        MemoryStream memoryStream = new MemoryStream();
+        StreamWriter streamWriter = new StreamWriter(memoryStream);
+        CsvWriter csvWriter = new CsvWriter(streamWriter, culture: System.Globalization.CultureInfo.InvariantCulture, leaveOpen:true);
+        csvWriter.WriteHeader<PersonResponse>(); // writes the header line
+        csvWriter.NextRecord();
+
+        List<PersonResponse> persons = await GetPersons();
+
+        await csvWriter.WriteRecordsAsync(persons);
+        memoryStream.Position = 0; // moving the cursor to starting
+        return memoryStream;
+
     }
     #endregion
 }

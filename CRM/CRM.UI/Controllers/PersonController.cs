@@ -3,6 +3,8 @@ using CRM.Models.DTO;
 using CRM.Models.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
+using Rotativa.AspNetCore;
 using System.Threading.Tasks;
 
 namespace CRM.UI.Controllers;
@@ -144,6 +146,35 @@ public class PersonController : Controller
             return RedirectToAction("Index", "Person");
         await _personsService.DeletePerson(personUpdateRequest.PersonId);
         return RedirectToAction("Index", "Person");
+    }
+    #endregion
+
+    #region GeneratePDF
+
+    [Route("[controller]/[action]")]
+    public async Task<IActionResult> PersonsPDF()
+    {
+       List<PersonResponse> persons =  await _personsService.GetPersons();
+        return new ViewAsPdf("PersonsPDF", persons, ViewData)
+        {
+            PageMargins = new Rotativa.AspNetCore.Options.Margins()
+            {
+                Top = 20,
+                Right = 20,
+                Bottom = 20,
+                Left = 20
+            },
+            PageOrientation = Rotativa.AspNetCore.Options.Orientation.Landscape
+        };
+    }
+    #endregion
+
+    #region CSVGenerator
+    [Route("[controller]/[action]")]
+    public async Task<IActionResult> PersonsCSV()
+    {
+       MemoryStream memoryStream =  await _personsService.GetPersonsCSV();
+        return File(memoryStream, "application/octet-stream", "persons.csv");
     }
     #endregion
 }
