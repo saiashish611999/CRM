@@ -11,6 +11,7 @@ public static class DependencyInjection
         {
             options.UseSqlServer(configuration.GetConnectionString("database"));
         });
+
         return services;
     }
 }

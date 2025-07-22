@@ -36,6 +36,8 @@ public class CRMDbContext: DbContext
         //modelBuilder.Entity<Person>().HasIndex(prop => prop.TIN)
         //                             .IsUnique();
 
+        // modelBuilder.Entity<Person>().HasIndex(prop => prop.Country).IsUnique();
+
         modelBuilder.Entity<Person>().HasCheckConstraint("CHK_TIN_Length", "Len([TaxIdentificationNumber]) = 8");
 
         // table relations
@@ -58,8 +60,8 @@ public class CRMDbContext: DbContext
         SqlParameter[] parameters = new SqlParameter[] {
         new SqlParameter("@PersonId", person.PersonId),
         new SqlParameter("@PersonName", person.PersonName),
-        new SqlParameter("@Email", person.Email),
-        new SqlParameter("@Address", person.Address),
+        new SqlParameter("@Email", person.Email ?? (object)DBNull.Value),
+        new SqlParameter("@Address", person.Address ?? (object)DBNull.Value),
         new SqlParameter("@CountryId", person.CountryId),
         new SqlParameter("@DateOfBirth", person.DateOfBirth),
         new SqlParameter("@ReceiveNewsLetters", person.ReceiveNewsLetters),

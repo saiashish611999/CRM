@@ -30,7 +30,7 @@ public class PersonsService: IPersonsService
     #endregion
 
     #region AddPerson
-    public PersonResponse AddPerson(PersonAddRequest? personAddRequest)
+    public async Task<PersonResponse> AddPerson(PersonAddRequest? personAddRequest)
     {
         if (personAddRequest is null)
             throw new ArgumentNullException(nameof(personAddRequest));
@@ -42,7 +42,7 @@ public class PersonsService: IPersonsService
         //_database.sp_InsertPerson(person);
 
         _database.Persons.Add(person);
-        _database.SaveChanges();
+        await _database.SaveChangesAsync();
 
         PersonResponse resposne = person.FromPersonToPersonResponse();
         return resposne;
@@ -50,7 +50,7 @@ public class PersonsService: IPersonsService
     #endregion
 
     #region GetPersons
-    public List<PersonResponse> GetPersons()
+    public async Task< List<PersonResponse>> GetPersons()
     {
         //List<Person> persons = _database.sp_GetAllPersons(); // eager loading
         //return persons.Select(FromPersonToPersonResponse).ToList();
@@ -58,15 +58,15 @@ public class PersonsService: IPersonsService
        
         
         // using LINQ method
-        List<Person> persons = _database.Persons.Include("Country").ToList();
+        List<Person> persons = await _database.Persons.Include("Country").ToListAsync();
         return persons.Select(person => person.FromPersonToPersonResponse()).ToList();
     }
     #endregion
 
     #region GetPersonByPersonId
-    public PersonResponse? GetPersonByPersonId(Guid? personId)
+    public async Task<PersonResponse?> GetPersonByPersonId(Guid? personId)
     {
-        Person? matchingPerson = _database.Persons.Include("Country").FirstOrDefault(person => person.PersonId == personId);
+        Person? matchingPerson = await _database.Persons.Include("Country").FirstOrDefaultAsync(person => person.PersonId == personId);
         if (matchingPerson is null)
             return null;
         return matchingPerson.FromPersonToPersonResponse();
@@ -74,9 +74,9 @@ public class PersonsService: IPersonsService
     #endregion
 
     #region GetFilteredPersons
-    public List<PersonResponse> GetFilteredPersons(string? searchBy, string? searchString)
+    public async Task<List<PersonResponse>> GetFilteredPersons(string? searchBy, string? searchString)
     {
-        List<PersonResponse> filteredPersons = GetPersons();
+        List<PersonResponse> filteredPersons = await GetPersons();
         if (string.IsNullOrEmpty(searchBy) || string.IsNullOrEmpty(searchString))
             return filteredPersons;
         var prop = typeof(PersonResponse).GetProperty(searchBy);
@@ -99,7 +99,7 @@ public class PersonsService: IPersonsService
     #endregion
 
     #region GetSortedPersons
-    public List<PersonResponse> GetSortedPersons(List<PersonResponse> allPersons, string? sortBy, SortOrderOptions sortOrderOptions)
+    public async Task<List<PersonResponse>> GetSortedPersons(List<PersonResponse> allPersons, string? sortBy, SortOrderOptions sortOrderOptions)
     {
         List<PersonResponse> sortedPersons = allPersons;
 
@@ -125,12 +125,12 @@ public class PersonsService: IPersonsService
     #endregion
 
     #region UpdatePerson
-    public PersonResponse UpdatePerson(PersonUpdateRequest? personUpdateRequest)
+    public async Task<PersonResponse> UpdatePerson(PersonUpdateRequest? personUpdateRequest)
     {
         if (personUpdateRequest is null)
             throw new ArgumentNullException(nameof(personUpdateRequest));
         ValidationHelper.ObjectValidator(personUpdateRequest);
-        Person? person = _database.Persons.FirstOrDefault(person => person.PersonId == personUpdateRequest.PersonId);
+        Person? person = await _database.Persons.FirstOrDefaultAsync(person => person.PersonId == personUpdateRequest.PersonId);
         if (person is null)
             throw new ArgumentException("Invalid person id");
         person.PersonName = personUpdateRequest.PersonName;
@@ -140,7 +140,7 @@ public class PersonsService: IPersonsService
         person.Address = personUpdateRequest.Address;
         person.Gender = personUpdateRequest.Gender.ToString();
         person.CountryId = personUpdateRequest.CountryId;
-        _database.SaveChanges();
+        await _database.SaveChangesAsync();
 
         PersonResponse resposne = person.FromPersonToPersonResponse();
         return resposne;
@@ -148,14 +148,14 @@ public class PersonsService: IPersonsService
     #endregion
 
     #region DeletePerson
-    public bool DeletePerson(Guid? personId)
+    public async Task<bool> DeletePerson(Guid? personId)
     {
         if (personId is null)
             throw new ArgumentException("null personID");
-        Person? person = _database.Persons.FirstOrDefault(person => person.PersonId == personId);
+        Person? person = await _database.Persons.FirstOrDefaultAsync(person => person.PersonId == personId);
         if (person is null) return false;
         _database.Persons.Remove(person);
-        _database.SaveChanges();
+        await _database.SaveChangesAsync();
 
         return true;
     }
